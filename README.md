@@ -1,25 +1,19 @@
-# MagicBlock Model Builder — Frontend-only MVP
+# Figure Dresser (frontend-only MVP)
 
-Це самодостатній (static) MVP конструктора кастомної фігурки без беку.
+Простий конструктор:
+1. Обери базову фігурку
+2. Одягни по кроках (волосся, верх, низ, аксесуари)
+3. Скачай готову фігурку PNG
 
-## Що є
-- конструктор фігурки (base / skin / hair / eyes / brows / mouth / outfit / accessories)
-- кастомізація коробки (theme / title / subtitle / number)
-- stage color + glow
-- Randomize / Reset
-- Autosave (localStorage)
-- Save / Load preset (.json)
-- Export PNG (scene) + PNG transparent (figure only)
+## Запуск
+Просто відкрий `index.html` в браузері.
 
-## Як запустити локально
-Просто відкрий `index.html` у браузері.
+## Функції
+- покроковий одягальник
+- прев'ю на canvas
+- PNG експорт (з фоном / прозорий фон)
+- Random / Reset
+- autosave у localStorage
 
-## Деплой на GitHub Pages
-Закинь файли в репозиторій (root) і увімкни GitHub Pages.
-
-## Наступні апгрейди (v2)
-- підміна SVG placeholder на PNG/SVG assets
-- багатошарові аксесуари з позиціонуванням
-- presets gallery
-- share link через hash/query (без беку)
-- 3D preview (Three.js) як окремий режим
+## Примітка
+Це MVP з векторними placeholder-формами (без бекенду, без логінів, без замовлень).
