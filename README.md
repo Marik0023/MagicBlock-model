@@ -1,23 +1,25 @@
-# Custom Figure Builder (Frontend-Only MVP)
+# MagicBlock Model Builder — Frontend-only MVP
 
-A starter **React + Vite** project for a custom figure builder (2D layered SVG preview) with:
+Це самодостатній (static) MVP конструктора кастомної фігурки без беку.
 
-- figure customization (base, skin, hair, eyes, brows, mouth, outfit, accessories)
-- box personalization (theme + title + subtitle)
-- localStorage autosave
-- randomize / reset
-- **Download PNG** (full scene)
-- **Download PNG (transparent)** (figure only)
-- save/load preset as `.json`
+## Що є
+- конструктор фігурки (base / skin / hair / eyes / brows / mouth / outfit / accessories)
+- кастомізація коробки (theme / title / subtitle / number)
+- stage color + glow
+- Randomize / Reset
+- Autosave (localStorage)
+- Save / Load preset (.json)
+- Export PNG (scene) + PNG transparent (figure only)
 
-## Start
+## Як запустити локально
+Просто відкрий `index.html` у браузері.
 
-```bash
-npm install
-npm run dev
-```
+## Деплой на GitHub Pages
+Закинь файли в репозиторій (root) і увімкни GitHub Pages.
 
-## Notes
-
-- This MVP uses an **original placeholder art style** (SVG shapes) and can be replaced later with your own PNG/SVG assets.
-- To switch to image layers later, replace the rendering inside `PreviewStage.jsx` and keep the same state/catalog logic.
+## Наступні апгрейди (v2)
+- підміна SVG placeholder на PNG/SVG assets
+- багатошарові аксесуари з позиціонуванням
+- presets gallery
+- share link через hash/query (без беку)
+- 3D preview (Three.js) як окремий режим

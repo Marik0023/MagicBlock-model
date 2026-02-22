@@ -1,12 +1,94 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Custom Figure Builder MVP</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MagicBlock Model Builder — MVP</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar glass">
+      <div class="brand">
+        <div class="brand-badge">MB</div>
+        <div>
+          <h1>MagicBlock Model Builder</h1>
+          <p>Frontend-only MVP • custom figure + box + export</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button id="randomizeBtn" class="btn">Randomize</button>
+        <button id="resetBtn" class="btn btn-secondary">Reset</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="panel left glass">
+        <div class="panel-title">Categories</div>
+        <div id="categoryTabs" class="category-tabs"></div>
+
+        <div class="section-divider"></div>
+        <div class="panel-title">Quick Colors</div>
+        <div class="quick-colors">
+          <label>
+            <span>Background</span>
+            <input id="bgColorInput" type="color" value="#0d1020" />
+          </label>
+          <label>
+            <span>Glow</span>
+            <input id="glowColorInput" type="color" value="#8f7bff" />
+          </label>
+        </div>
+
+        <div class="section-divider"></div>
+        <div class="panel-title">Preset</div>
+        <div class="stack gap8">
+          <button id="savePresetBtn" class="btn btn-wide">Save preset (.json)</button>
+          <label class="file-btn">
+            Load preset (.json)
+            <input id="loadPresetInput" type="file" accept="application/json,.json" hidden />
+          </label>
+        </div>
+      </aside>
+
+      <section class="center-stage glass">
+        <div class="stage-toolbar">
+          <button id="toggleBoxBtn" class="chip active">Box Preview</button>
+          <button id="toggleFigureOnlyBtn" class="chip">Figure Only</button>
+          <button id="rotateLeftBtn" class="chip">◀</button>
+          <button id="rotateRightBtn" class="chip">▶</button>
+        </div>
+
+        <div id="captureArea" class="capture-area">
+          <div id="stageBgGlow" class="stage-bg-glow"></div>
+          <div id="builderScene" class="scene">
+            <div id="figureWrap" class="figure-wrap"></div>
+            <div id="boxWrap" class="box-wrap"></div>
+          </div>
+        </div>
+
+        <div class="export-bar">
+          <button id="downloadPngBtn" class="btn btn-primary">Download PNG</button>
+          <button id="downloadTransparentBtn" class="btn">PNG Transparent</button>
+        </div>
+      </section>
+
+      <aside class="panel right glass">
+        <div class="panel-title" id="optionsTitle">Options</div>
+        <div id="optionsArea" class="options-area"></div>
+      </aside>
+    </main>
+
+    <footer class="footer glass">
+      <span>Autosave enabled (localStorage)</span>
+      <span id="autosaveStatus">Saved</span>
+    </footer>
+  </div>
+
+  <template id="swatchTemplate">
+    <button class="swatch" type="button"></button>
+  </template>
+
+  <script src="script.js"></script>
+</body>
 </html>
