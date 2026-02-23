@@ -138,13 +138,14 @@ function ElectricParticleField() {
 function Capsule({ name, avatarPreview, phase = 'open', tgeDate = TGE_DATE, sealProgress = 0, compact = false }) {
   const c = useCountdown(tgeDate)
   const typed = useTypedText('LOCKED UNTIL TGE', phase === 'sealing' || phase === 'sealed', 65)
+  const stickerSrc = '/MagicBlock-Logomark-Black.png'
 
-  const W = compact ? 360 : 620
-  const H = compact ? 260 : 420
-  const lidW = compact ? 275 : 470
-  const lidH = compact ? 100 : 165
-  const bodyW = compact ? 300 : 520
-  const bodyH = compact ? 110 : 180
+  const W = compact ? 370 : 720
+  const H = compact ? 280 : 500
+  const lidW = compact ? 300 : 540
+  const lidH = compact ? 110 : 180
+  const bodyW = compact ? 330 : 590
+  const bodyH = compact ? 128 : 210
 
   const lidState =
     phase === 'open' ? { y: 0, rotateX: -64 } : phase === 'sealing' ? { y: 82, rotateX: 0 } : { y: 82, rotateX: 0 }
@@ -153,11 +154,13 @@ function Capsule({ name, avatarPreview, phase = 'open', tgeDate = TGE_DATE, seal
 
   return (
     <div className="relative mx-auto" style={{ width: W, height: H, perspective: 1400 }}>
+      <div className="pointer-events-none absolute inset-[5%] opacity-[0.09] [background-image:linear-gradient(rgba(103,232,249,.5)_1px,transparent_1px),linear-gradient(90deg,rgba(103,232,249,.35)_1px,transparent_1px)] [background-size:18px_18px]" />
       <div className="absolute inset-[4%] rounded-[26px] border border-cyan-300/10 bg-gradient-to-b from-cyan-500/5 to-blue-500/5" />
+      <div className="pointer-events-none absolute inset-x-0 top-4 h-14 bg-gradient-to-b from-cyan-300/8 to-transparent" />
       <ElectricParticleField />
 
       <motion.div
-        className="absolute left-1/2 bottom-4 h-6 -translate-x-1/2 rounded-full blur-2xl"
+        className="absolute left-1/2 bottom-6 h-8 -translate-x-1/2 rounded-full blur-2xl"
         style={{ width: compact ? 220 : 380, background: 'rgba(34,211,238,.24)' }}
         animate={phase === 'sealing' ? { opacity: [0.2, 0.9, 0.35], scaleX: [0.95, 1.08, 1] } : { opacity: 0.35, scaleX: 1 }}
         transition={phase === 'sealing' ? { duration: 1.1, repeat: Infinity } : { duration: 0.25 }}
@@ -167,6 +170,8 @@ function Capsule({ name, avatarPreview, phase = 'open', tgeDate = TGE_DATE, seal
       <div className="absolute left-1/2 bottom-10 -translate-x-1/2" style={{ width: bodyW, height: bodyH }}>
         <div className="absolute inset-0 rounded-[30px] border border-white/15 bg-gradient-to-b from-[#f4fbff] via-[#e6eef5] to-[#cad5e2] shadow-[0_14px_40px_rgba(0,0,0,.45)] overflow-hidden">
           <div className="absolute inset-0 opacity-70 [background-image:radial-gradient(circle_at_20%_20%,rgba(255,255,255,.85),transparent_33%),radial-gradient(circle_at_80%_70%,rgba(34,211,238,.12),transparent_48%)]" />
+          <div className="absolute left-10 right-10 top-4 h-[3px] rounded-full bg-white/60 blur-[1px]" />
+          <div className="absolute left-12 right-12 top-6 h-[2px] rounded-full bg-cyan-300/45" />
           <div className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-2xl border border-white/40 bg-white/55 backdrop-blur-sm grid place-items-center text-cyan-900/70 shadow-inner">✧</div>
           <div className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-2xl border border-white/40 bg-white/55 backdrop-blur-sm grid place-items-center text-cyan-900/70 shadow-inner">⌁</div>
           <div className="absolute left-6 bottom-5 h-2 w-8 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(34,211,238,.8)]" />
@@ -174,9 +179,37 @@ function Capsule({ name, avatarPreview, phase = 'open', tgeDate = TGE_DATE, seal
           <div className="absolute left-6 top-11 h-8 w-1 rounded-full bg-cyan-300/90" />
           <div className="absolute right-6 top-11 h-8 w-1 rounded-full bg-cyan-300/90" />
 
+          {/* stickers */}
+          <div className="absolute left-4 top-4 rotate-[-8deg] rounded-xl border border-slate-300/75 bg-white/75 px-2 py-1 shadow-[0_6px_18px_rgba(0,0,0,.08)]">
+            <div className="flex items-center gap-1.5">
+              <img src={stickerSrc} alt="MagicBlock sticker" className="h-5 w-5 object-contain" />
+              <span className="text-[9px] font-bold tracking-[.16em] text-slate-700">MB</span>
+            </div>
+          </div>
+          <div className="absolute right-4 top-4 rotate-[7deg] rounded-xl border border-slate-300/75 bg-white/75 px-2 py-1 shadow-[0_6px_18px_rgba(0,0,0,.08)]">
+            <div className="flex items-center gap-1.5">
+              <img src={stickerSrc} alt="MagicBlock logo" className="h-5 w-5 object-contain" />
+              <span className="text-[9px] font-semibold tracking-[.12em] text-slate-700">TGE</span>
+            </div>
+          </div>
+          <div className="absolute right-16 bottom-4 rotate-[-6deg] rounded-lg border border-slate-300/75 bg-white/75 px-2 py-1 shadow-[0_4px_14px_rgba(0,0,0,.08)]">
+            <div className="flex items-center gap-1.5">
+              <img src={stickerSrc} alt="MagicBlock sticker" className="h-4 w-4 object-contain" />
+              <span className="text-[8px] font-semibold tracking-[.14em] text-slate-700">SEALED DROP</span>
+            </div>
+          </div>
+          <div className="absolute left-3 top-12 flex flex-col gap-10">
+            <div className="h-10 w-[4px] rounded-full bg-cyan-300/85 shadow-[0_0_12px_rgba(34,211,238,.75)]" />
+            <div className="h-10 w-[4px] rounded-full bg-cyan-300/85 shadow-[0_0_12px_rgba(34,211,238,.75)]" />
+          </div>
+          <div className="absolute right-3 top-12 flex flex-col gap-10">
+            <div className="h-10 w-[4px] rounded-full bg-cyan-300/85 shadow-[0_0_12px_rgba(34,211,238,.75)]" />
+            <div className="h-10 w-[4px] rounded-full bg-cyan-300/85 shadow-[0_0_12px_rgba(34,211,238,.75)]" />
+          </div>
+
           {/* center plate */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-[22px] border border-cyan-200/50 bg-gradient-to-r from-[#d5e4ed]/80 to-[#c8d8e3]/80 shadow-[inset_0_0_0_1px_rgba(255,255,255,.25)]"
-            style={{ width: compact ? 200 : 350, height: compact ? 70 : 110 }}>
+            style={{ width: compact ? 210 : 395, height: compact ? 76 : 124 }}>
             <div className="absolute left-2 top-2 bottom-2 aspect-square rounded-xl border border-cyan-900/20 bg-[#051624] overflow-hidden shadow-[inset_0_0_0_1px_rgba(34,211,238,.14)]">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(34,211,238,.12),transparent_55%)]" />
               {avatarPreview ? (
@@ -187,7 +220,7 @@ function Capsule({ name, avatarPreview, phase = 'open', tgeDate = TGE_DATE, seal
               <div className="absolute inset-1 rounded-[10px] border border-cyan-300/15" />
             </div>
 
-            <div className="absolute left-[32%] right-3 top-2 bottom-2 flex flex-col justify-center min-w-0">
+            <div className="absolute left-[30%] right-3 top-2 bottom-2 flex flex-col justify-center min-w-0">
               <div className="text-[9px] uppercase tracking-[.26em] text-cyan-900/35">Capsule ID</div>
               <div className="truncate font-semibold text-cyan-950/70 text-sm md:text-base">
                 {showIdentity ? name || 'Unnamed' : '—'}
@@ -215,20 +248,26 @@ function Capsule({ name, avatarPreview, phase = 'open', tgeDate = TGE_DATE, seal
 
       {/* lid shadow */}
       <motion.div
-        className="absolute left-1/2 top-[26%] -translate-x-1/2 rounded-[28px] bg-black/35 blur-xl"
+        className="absolute left-1/2 top-[24%] -translate-x-1/2 rounded-[28px] bg-black/35 blur-xl"
         style={{ width: lidW * 0.92, height: lidH * 0.42 }}
         animate={phase === 'open' ? { opacity: 0.35, y: -8 } : { opacity: 0.15, y: 10 }}
       />
 
       {/* lid */}
       <motion.div
-        className="absolute left-1/2 top-[16%] -translate-x-1/2 origin-bottom"
+        className="absolute left-1/2 top-[12%] -translate-x-1/2 origin-bottom"
         style={{ width: lidW, height: lidH, transformStyle: 'preserve-3d' }}
         animate={lidState}
         transition={phase === 'sealing' ? { duration: 1.2, ease: [0.22, 0.98, 0.2, 1] } : { duration: 0.35 }}
       >
         <div className="relative h-full w-full rounded-[28px] border border-white/20 bg-gradient-to-b from-[#f3fbff] via-[#d9e9f6] to-[#b8c9d7] p-[8px] shadow-[0_16px_36px_rgba(0,0,0,.35)]">
           <div className="relative h-full w-full rounded-[22px] border border-cyan-300/25 bg-gradient-to-br from-[#07244a] via-[#04162f] to-[#020a18] overflow-hidden shadow-[inset_0_0_50px_rgba(34,211,238,.12)]">
+            <div className="absolute left-4 top-4 rotate-[-4deg] rounded-lg border border-white/15 bg-white/10 px-2 py-1 backdrop-blur">
+              <div className="flex items-center gap-1.5">
+                <img src={stickerSrc} alt="MB logo" className="h-4 w-4 rounded-sm bg-white/80 p-[2px] object-contain" />
+                <span className="text-[8px] font-semibold tracking-[.14em] text-cyan-50/90">STATUS</span>
+              </div>
+            </div>
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_12%,rgba(56,189,248,.22),transparent_38%),radial-gradient(circle_at_78%_70%,rgba(34,211,238,.15),transparent_52%)]" />
             <motion.div
               className="absolute left-3 right-3 top-3 h-[2px] rounded-full bg-cyan-300"
@@ -577,7 +616,7 @@ export default function App() {
 
         {/* Step 2 */}
         {step === 2 && (
-          <div className="grid grid-cols-1 2xl:grid-cols-[1.15fr_.85fr] gap-6 items-start">
+          <div className="grid grid-cols-1 xl:grid-cols-[1.1fr_.9fr] gap-6 items-start">
             <Glass className="p-5 md:p-6">
               <div className="flex items-center justify-between gap-3 mb-4">
                 <div>
@@ -587,14 +626,14 @@ export default function App() {
                 <div className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">LETTER</div>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-black/20 p-4 min-h-[570px] flex items-center justify-center">
+              <div className="rounded-3xl border border-white/10 bg-black/20 p-4 min-h-[520px] xl:min-h-[560px] flex items-center justify-center overflow-hidden">
                 <Capsule name={name} avatarPreview={avatarPreview} phase={phase} />
               </div>
 
               <div className="mt-4"><StepPills step={2} /></div>
             </Glass>
 
-            <Glass className="p-5 md:p-6 2xl:sticky 2xl:top-4">
+            <Glass className="p-5 md:p-6 xl:sticky xl:top-4">
               <div className="text-xs uppercase tracking-[.22em] text-cyan-200/80">Step 2</div>
               <h2 className="mt-2 text-3xl md:text-4xl font-semibold">Напиши лист</h2>
               <p className="mt-3 text-white/60">Просте заповнення: один лист. Без додаткових полів. Після натискання капсула закриється з анімацією.</p>
@@ -625,7 +664,7 @@ export default function App() {
         {/* Step 3 */}
         {step === 3 && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 2xl:grid-cols-[1.05fr_.95fr] gap-6 items-start">
+            <div className="grid grid-cols-1 xl:grid-cols-[1.05fr_.95fr] gap-6 items-start">
               <Glass className="p-5 md:p-6">
                 <div className="flex items-center justify-between gap-3 mb-4">
                   <div>
@@ -634,7 +673,7 @@ export default function App() {
                   </div>
                   <div className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">SEALED</div>
                 </div>
-                <div className="rounded-3xl border border-white/10 bg-black/20 p-4 min-h-[570px] flex items-center justify-center">
+                <div className="rounded-3xl border border-white/10 bg-black/20 p-4 min-h-[520px] xl:min-h-[560px] flex items-center justify-center overflow-hidden">
                   <Capsule name={name} avatarPreview={avatarPreview} phase={phase} />
                 </div>
                 <div className="mt-4"><StepPills step={3} /></div>
