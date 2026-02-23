@@ -135,187 +135,263 @@ function ElectricParticleField() {
   )
 }
 
-function Capsule({ name, avatarPreview, phase = 'open', tgeDate = TGE_DATE, sealProgress = 0, compact = false }) {
-  const c = useCountdown(tgeDate)
-  const typed = useTypedText('LOCKED UNTIL TGE', phase === 'sealing' || phase === 'sealed', 65)
-  const stickerSrc = '/MagicBlock-Logomark-Black.png'
 
-  const W = compact ? 370 : 720
-  const H = compact ? 280 : 500
-  const lidW = compact ? 300 : 540
-  const lidH = compact ? 110 : 180
-  const bodyW = compact ? 330 : 590
-  const bodyH = compact ? 128 : 210
+function Capsule({ profile, sealed, compact = false, name, avatarPreview, phase }) {
+  const normalizedProfile = profile || { nickname: name || "pilot", avatar: avatarPreview || null };
+  const isSealed = typeof sealed === "boolean" ? sealed : phase !== "open";
+  const lidState = isSealed
+    ? { y: -10, rotate: 0, scaleX: 1.0, opacity: 1 }
+    : { y: -92, rotate: -3, scaleX: 1.03, opacity: 1 };
 
-  const lidState =
-    phase === 'open' ? { y: 0, rotateX: -64 } : phase === 'sealing' ? { y: 82, rotateX: 0 } : { y: 82, rotateX: 0 }
-
-  const showIdentity = !!name || !!avatarPreview
+  const scanState = isSealed
+    ? { x: ["0%", "100%", "0%"], opacity: [0.25, 0.55, 0.25] }
+    : { x: ["0%", "120%", "0%"], opacity: [0.4, 0.9, 0.4] };
 
   return (
-    <div className="relative mx-auto" style={{ width: W, height: H, perspective: 1400 }}>
-      <div className="pointer-events-none absolute inset-[5%] opacity-[0.09] [background-image:linear-gradient(rgba(103,232,249,.5)_1px,transparent_1px),linear-gradient(90deg,rgba(103,232,249,.35)_1px,transparent_1px)] [background-size:18px_18px]" />
-      <div className="absolute inset-[4%] rounded-[26px] border border-cyan-300/10 bg-gradient-to-b from-cyan-500/5 to-blue-500/5" />
-      <div className="pointer-events-none absolute inset-x-0 top-4 h-14 bg-gradient-to-b from-cyan-300/8 to-transparent" />
-      <ElectricParticleField />
+    <div className={cn("relative w-full", compact ? "max-w-[640px]" : "max-w-[900px]")}> 
+      <div className={cn("relative mx-auto", compact ? "h-[310px]" : "h-[560px]")} style={{ perspective: 1400 }}>
+        {/* Ambient glow / shadows */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute left-1/2 top-[72%] h-24 w-[72%] -translate-x-1/2 rounded-full bg-cyan-400/15 blur-3xl" />
+          <div className="absolute left-1/2 top-[76%] h-14 w-[54%] -translate-x-1/2 rounded-full bg-blue-500/20 blur-2xl" />
+          <div className="absolute inset-x-[9%] bottom-[8%] h-[36%] rounded-[26px] border border-cyan-300/12 bg-[linear-gradient(180deg,rgba(17,31,45,.75),rgba(4,10,18,.4))] shadow-[inset_0_1px_0_rgba(255,255,255,.06)]" />
+          <div className="absolute inset-x-[10%] bottom-[9%] h-[34%] rounded-[24px] opacity-40" style={{
+            backgroundImage:
+              "linear-gradient(rgba(91,233,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(91,233,255,.06) 1px, transparent 1px)",
+            backgroundSize: compact ? "14px 14px" : "22px 22px",
+          }} />
+          {[...Array(compact ? 8 : 14)].map((_, i) => (
+            <motion.span
+              key={i}
+              className="absolute rounded-full bg-cyan-300"
+              style={{
+                width: i % 3 === 0 ? 6 : 3,
+                height: i % 3 === 0 ? 6 : 3,
+                left: `${8 + (i * 7) % 84}%`,
+                top: `${14 + ((i * 9) % 44)}%`,
+                opacity: 0.35,
+                filter: "blur(.2px)",
+              }}
+              animate={{ y: [0, -8, 0], opacity: [0.2, 0.8, 0.2] }}
+              transition={{ duration: 3 + (i % 5), repeat: Infinity, ease: "easeInOut", delay: i * 0.15 }}
+            />
+          ))}
+        </div>
 
-      <motion.div
-        className="absolute left-1/2 bottom-6 h-8 -translate-x-1/2 rounded-full blur-2xl"
-        style={{ width: compact ? 220 : 380, background: 'rgba(34,211,238,.24)' }}
-        animate={phase === 'sealing' ? { opacity: [0.2, 0.9, 0.35], scaleX: [0.95, 1.08, 1] } : { opacity: 0.35, scaleX: 1 }}
-        transition={phase === 'sealing' ? { duration: 1.1, repeat: Infinity } : { duration: 0.25 }}
-      />
+        {/* Main 3D stage */}
+        <div
+          className={cn(
+            "absolute left-1/2 top-[54%] -translate-x-1/2",
+            compact ? "w-[520px] h-[210px]" : "w-[760px] h-[300px]"
+          )}
+          style={{ transformStyle: "preserve-3d", transform: "translateX(-50%) rotateX(8deg) rotateY(-6deg)" }}
+        >
+          {/* Floor reflection */}
+          <div className="pointer-events-none absolute inset-x-[9%] -bottom-5 h-12 rounded-full bg-black/60 blur-2xl" />
+          <div className="pointer-events-none absolute inset-x-[16%] -bottom-2 h-6 rounded-full bg-cyan-400/15 blur-xl" />
 
-      {/* body */}
-      <div className="absolute left-1/2 bottom-10 -translate-x-1/2" style={{ width: bodyW, height: bodyH }}>
-        <div className="absolute inset-0 rounded-[30px] border border-white/15 bg-gradient-to-b from-[#f4fbff] via-[#e6eef5] to-[#cad5e2] shadow-[0_14px_40px_rgba(0,0,0,.45)] overflow-hidden">
-          <div className="absolute inset-0 opacity-70 [background-image:radial-gradient(circle_at_20%_20%,rgba(255,255,255,.85),transparent_33%),radial-gradient(circle_at_80%_70%,rgba(34,211,238,.12),transparent_48%)]" />
-          <div className="absolute left-10 right-10 top-4 h-[3px] rounded-full bg-white/60 blur-[1px]" />
-          <div className="absolute left-12 right-12 top-6 h-[2px] rounded-full bg-cyan-300/45" />
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-2xl border border-white/40 bg-white/55 backdrop-blur-sm grid place-items-center text-cyan-900/70 shadow-inner">✧</div>
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-2xl border border-white/40 bg-white/55 backdrop-blur-sm grid place-items-center text-cyan-900/70 shadow-inner">⌁</div>
-          <div className="absolute left-6 bottom-5 h-2 w-8 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(34,211,238,.8)]" />
-          <div className="absolute right-6 bottom-5 h-2 w-12 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(34,211,238,.8)]" />
-          <div className="absolute left-6 top-11 h-8 w-1 rounded-full bg-cyan-300/90" />
-          <div className="absolute right-6 top-11 h-8 w-1 rounded-full bg-cyan-300/90" />
+          {/* Back chassis plate */}
+          <div
+            className="absolute inset-[6%] rounded-[28px] border border-cyan-200/12 bg-[linear-gradient(160deg,rgba(10,29,46,.92),rgba(6,13,20,.85)_48%,rgba(7,23,38,.88))]"
+            style={{ transform: compact ? "translateZ(-12px)" : "translateZ(-18px)" }}
+          >
+            <div className="absolute inset-0 rounded-[28px] opacity-45" style={{
+              backgroundImage:
+                "radial-gradient(circle at 12% 18%, rgba(92,239,255,.18), transparent 34%), radial-gradient(circle at 85% 78%, rgba(64,170,255,.14), transparent 40%)",
+            }} />
+            <div className="absolute inset-2 rounded-[24px] border border-white/5" />
+          </div>
 
-          {/* stickers */}
-          <div className="absolute left-4 top-4 rotate-[-8deg] rounded-xl border border-slate-300/75 bg-white/75 px-2 py-1 shadow-[0_6px_18px_rgba(0,0,0,.08)]">
-            <div className="flex items-center gap-1.5">
-              <img src={stickerSrc} alt="MagicBlock sticker" className="h-5 w-5 object-contain" />
-              <span className="text-[9px] font-bold tracking-[.16em] text-slate-700">MB</span>
+          {/* Base capsule body */}
+          <div
+            className="absolute inset-x-[8%] bottom-[4%] h-[62%]"
+            style={{ transformStyle: "preserve-3d" }}
+          >
+            {/* depth layers */}
+            <div className="absolute inset-0 rounded-[28px] bg-[#a8bac8]/90 shadow-[0_28px_60px_rgba(0,0,0,.45),inset_0_2px_0_rgba(255,255,255,.55)]" style={{ transform: "translateZ(-8px)" }} />
+            <div className="absolute inset-x-1 inset-y-1 rounded-[26px] border border-cyan-100/30 bg-[linear-gradient(180deg,#eef4f8,#d6e2ea_48%,#c8d5df)] shadow-[inset_0_1px_0_rgba(255,255,255,.75),inset_0_-12px_20px_rgba(125,155,184,.15)]" style={{ transform: "translateZ(0px)" }}>
+              <div className="absolute inset-0 rounded-[26px] opacity-40" style={{
+                backgroundImage:
+                  "radial-gradient(circle at 18% 18%, rgba(120,230,255,.22), transparent 34%), radial-gradient(circle at 86% 84%, rgba(91,198,255,.18), transparent 36%), linear-gradient(115deg, rgba(255,255,255,.18), transparent 38%)",
+              }} />
             </div>
-          </div>
-          <div className="absolute right-4 top-4 rotate-[7deg] rounded-xl border border-slate-300/75 bg-white/75 px-2 py-1 shadow-[0_6px_18px_rgba(0,0,0,.08)]">
-            <div className="flex items-center gap-1.5">
-              <img src={stickerSrc} alt="MagicBlock logo" className="h-5 w-5 object-contain" />
-              <span className="text-[9px] font-semibold tracking-[.12em] text-slate-700">TGE</span>
-            </div>
-          </div>
-          <div className="absolute right-16 bottom-4 rotate-[-6deg] rounded-lg border border-slate-300/75 bg-white/75 px-2 py-1 shadow-[0_4px_14px_rgba(0,0,0,.08)]">
-            <div className="flex items-center gap-1.5">
-              <img src={stickerSrc} alt="MagicBlock sticker" className="h-4 w-4 object-contain" />
-              <span className="text-[8px] font-semibold tracking-[.14em] text-slate-700">SEALED DROP</span>
-            </div>
-          </div>
-          <div className="absolute left-3 top-12 flex flex-col gap-10">
-            <div className="h-10 w-[4px] rounded-full bg-cyan-300/85 shadow-[0_0_12px_rgba(34,211,238,.75)]" />
-            <div className="h-10 w-[4px] rounded-full bg-cyan-300/85 shadow-[0_0_12px_rgba(34,211,238,.75)]" />
-          </div>
-          <div className="absolute right-3 top-12 flex flex-col gap-10">
-            <div className="h-10 w-[4px] rounded-full bg-cyan-300/85 shadow-[0_0_12px_rgba(34,211,238,.75)]" />
-            <div className="h-10 w-[4px] rounded-full bg-cyan-300/85 shadow-[0_0_12px_rgba(34,211,238,.75)]" />
-          </div>
 
-          {/* center plate */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-[22px] border border-cyan-200/50 bg-gradient-to-r from-[#d5e4ed]/80 to-[#c8d8e3]/80 shadow-[inset_0_0_0_1px_rgba(255,255,255,.25)]"
-            style={{ width: compact ? 210 : 395, height: compact ? 76 : 124 }}>
-            <div className="absolute left-2 top-2 bottom-2 aspect-square rounded-xl border border-cyan-900/20 bg-[#051624] overflow-hidden shadow-[inset_0_0_0_1px_rgba(34,211,238,.14)]">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(34,211,238,.12),transparent_55%)]" />
-              {avatarPreview ? (
-                <img src={avatarPreview} alt="avatar" className="h-full w-full object-cover" />
-              ) : (
-                <div className="h-full w-full grid place-items-center text-[10px] font-medium tracking-[.15em] text-cyan-200/65">AVATAR</div>
-              )}
-              <div className="absolute inset-1 rounded-[10px] border border-cyan-300/15" />
-            </div>
+            {/* top ridge */}
+            <div className="absolute left-[6%] right-[6%] top-[12%] h-[8%] rounded-full border border-cyan-200/30 bg-cyan-50/45 shadow-[inset_0_1px_0_rgba(255,255,255,.85)]" style={{ transform: "translateZ(6px)" }} />
 
-            <div className="absolute left-[30%] right-3 top-2 bottom-2 flex flex-col justify-center min-w-0">
-              <div className="text-[9px] uppercase tracking-[.26em] text-cyan-900/35">Capsule ID</div>
-              <div className="truncate font-semibold text-cyan-950/70 text-sm md:text-base">
-                {showIdentity ? name || 'Unnamed' : '—'}
+            {/* side rails */}
+            {["left", "right"].map((side) => (
+              <div key={side} className={cn("absolute top-[24%] bottom-[18%] w-[3.1%] rounded-full bg-cyan-200/30", side === "left" ? "left-[2.8%]" : "right-[2.8%]")} style={{ transform: "translateZ(8px)" }}>
+                <div className="absolute inset-0 rounded-full border border-cyan-300/40" />
+                <div className="absolute inset-[20%] rounded-full bg-cyan-300/65 blur-[1px]" />
               </div>
-              <div className="mt-1 h-5 rounded-lg border border-cyan-900/8 bg-[#5d7388]/20 px-2 flex items-center overflow-hidden">
+            ))}
+
+            {/* mini bumpers */}
+            <div className="absolute bottom-[9%] left-[6%] h-[4.5%] w-[8%] rounded-full bg-cyan-300/70 blur-[.3px]" style={{ transform: "translateZ(10px)" }} />
+            <div className="absolute bottom-[9%] right-[6%] h-[4.5%] w-[10%] rounded-full bg-cyan-300/70 blur-[.3px]" style={{ transform: "translateZ(10px)" }} />
+
+            {/* stickers / decals with logos */}
+            <motion.div className="absolute left-[2.7%] top-[13%] h-[12%] w-[11%] rounded-[12px] border border-black/10 bg-white/88 shadow-md" style={{ transform: "translateZ(12px) rotate(-7deg)" }} whileHover={{ rotate: -5 }}>
+              <div className="absolute inset-[6%] rounded-[10px] border border-slate-300/60 bg-white/90" />
+              {logoSrc ? <img src={logoSrc} alt="MB sticker" className="absolute left-[8%] top-[16%] h-[56%] w-auto object-contain" /> : null}
+              <span className="absolute right-[8%] top-[33%] text-[0.52rem] font-black tracking-[0.22em] text-slate-700">MB</span>
+            </motion.div>
+
+            <motion.div className="absolute right-[2.8%] top-[13%] h-[12%] w-[11%] rounded-[12px] border border-black/10 bg-white/90 shadow-md" style={{ transform: "translateZ(12px) rotate(6deg)" }} whileHover={{ rotate: 4 }}>
+              <div className="absolute inset-[6%] rounded-[10px] border border-slate-300/60 bg-white/90" />
+              {logoSrc ? <img src={logoSrc} alt="TGE sticker" className="absolute left-[8%] top-[16%] h-[56%] w-auto object-contain opacity-90" /> : null}
+              <span className="absolute right-[8%] top-[33%] text-[0.5rem] font-black tracking-[0.22em] text-slate-700">TGE</span>
+            </motion.div>
+
+            <motion.div className="absolute right-[10%] bottom-[7.5%] h-[11%] w-[19%] rounded-[12px] border border-black/10 bg-white/88 shadow-md" style={{ transform: "translateZ(12px) rotate(-8deg)" }} whileHover={{ rotate: -6 }}>
+              <div className="absolute inset-[6%] rounded-[10px] border border-slate-300/60 bg-white/90" />
+              {logoSrc ? <img src={logoSrc} alt="sealed sticker" className="absolute left-[8%] top-[18%] h-[50%] w-auto object-contain opacity-70" /> : null}
+              <span className="absolute right-[8%] top-[31%] text-[0.5rem] font-black tracking-[0.24em] text-slate-700">SEALED DROP</span>
+            </motion.div>
+
+            {/* left command button */}
+            <div className="absolute left-[4.2%] top-[40%] h-[22%] w-[8.8%] rounded-[18px] border border-slate-200/80 bg-[linear-gradient(180deg,#f7fbff,#dbe6ee)] shadow-[inset_0_1px_0_rgba(255,255,255,.9)]" style={{ transform: "translateZ(9px)" }}>
+              <div className="absolute inset-[8%] rounded-[14px] border border-black/5 bg-white/30" />
+              <div className="absolute left-1/2 top-1/2 h-[28%] w-[28%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200/40" />
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[0.9rem] text-slate-500">✧</div>
+            </div>
+
+            {/* right command button */}
+            <div className="absolute right-[4.2%] top-[40%] h-[22%] w-[8.8%] rounded-[18px] border border-slate-200/80 bg-[linear-gradient(180deg,#f7fbff,#dbe6ee)] shadow-[inset_0_1px_0_rgba(255,255,255,.9)]" style={{ transform: "translateZ(9px)" }}>
+              <div className="absolute inset-[8%] rounded-[14px] border border-black/5 bg-white/30" />
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[0.82rem] font-black tracking-[0.2em] text-slate-500">↯</div>
+            </div>
+
+            {/* avatar cartridge */}
+            <div className="absolute left-[14%] top-[24%] h-[54%] w-[18%] rounded-[20px] border border-cyan-300/25 bg-[linear-gradient(180deg,rgba(20,37,52,.96),rgba(7,14,22,.98))] shadow-[inset_0_2px_0_rgba(255,255,255,.06),0_10px_24px_rgba(0,0,0,.18)]" style={{ transform: "translateZ(16px)" }}>
+              <div className="absolute inset-[5%] rounded-[16px] border border-cyan-200/15" />
+              <div className="absolute inset-[10%] rounded-[14px] border border-cyan-300/30 bg-black/40 overflow-hidden">
+                {normalizedProfile.avatar ? (
+                  <img src={normalizedProfile.avatar} alt="avatar" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="grid h-full place-items-center bg-[radial-gradient(circle_at_30%_20%,rgba(83,220,255,.25),transparent_40%),#07111c]">
+                    <User className="h-10 w-10 text-cyan-100/70" />
+                  </div>
+                )}
+                <div className="absolute inset-0 opacity-25" style={{
+                  backgroundImage:
+                    "linear-gradient(rgba(82,234,255,.2) 1px, transparent 1px), linear-gradient(90deg, rgba(82,234,255,.12) 1px, transparent 1px)",
+                  backgroundSize: compact ? "12px 12px" : "18px 18px",
+                }} />
                 <motion.div
-                  className="text-[9px] md:text-[10px] uppercase tracking-[.18em] text-cyan-900/45 whitespace-nowrap"
-                  animate={phase === 'sealing' ? { opacity: [0.2, 1, 0.4] } : { opacity: 1 }}
-                  transition={phase === 'sealing' ? { duration: 0.8, repeat: Infinity } : { duration: 0.2 }}
-                >
-                  {phase === 'sealed' ? 'Locked until TGE' : phase === 'sealing' ? (typed || 'LOCKING...') : 'Ready to seal'}
-                </motion.div>
+                  className="absolute left-0 right-0 h-3 bg-cyan-300/35 blur-[2px]"
+                  animate={{ top: ["8%", "84%", "8%"] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                />
               </div>
+              <div className="absolute inset-x-[9%] bottom-[8%] h-[5%] rounded-full bg-cyan-300/70 blur-[.4px]" />
+            </div>
+
+            {/* central info core */}
+            <div className="absolute left-[34%] right-[14%] top-[24%] bottom-[24%] rounded-[22px] border border-cyan-300/25 bg-[linear-gradient(180deg,#d7e4ee,#c4d2dd)] shadow-[inset_0_1px_0_rgba(255,255,255,.8),inset_0_-8px_14px_rgba(94,120,145,.14)]" style={{ transform: "translateZ(14px)" }}>
+              <div className="absolute inset-[2px] rounded-[20px] border border-white/40" />
+              <div className="absolute inset-0 rounded-[22px] opacity-40" style={{
+                backgroundImage:
+                  "linear-gradient(130deg, rgba(255,255,255,.25), transparent 30%, rgba(91,224,255,.12) 65%, transparent 85%)",
+              }} />
+              <div className="absolute left-[5%] top-[18%] text-[0.55rem] font-semibold tracking-[0.28em] text-slate-400">CAPSULE ID</div>
+              <div className={cn("absolute left-[5%] top-[38%] text-slate-700 font-bold truncate", compact ? "max-w-[72%] text-lg" : "max-w-[75%] text-3xl")}>{normalizedProfile.nickname || "pilot"}</div>
+              <div className="absolute left-[5%] right-[5%] bottom-[18%] h-[20%] rounded-full border border-white/70 bg-[linear-gradient(180deg,#c7d3de,#b8c6d3)] shadow-[inset_0_1px_0_rgba(255,255,255,.75)]">
+                <motion.div
+                  className="absolute inset-y-[18%] left-[1%] rounded-full bg-[linear-gradient(90deg,rgba(68,231,255,.22),rgba(68,231,255,.55),rgba(110,160,255,.28))]"
+                  initial={false}
+                  animate={{ width: isSealed ? "98%" : "32%" }}
+                  transition={{ type: "spring", stiffness: 110, damping: 18 }}
+                />
+                <div className="absolute inset-0 grid place-items-center text-[0.55rem] font-black tracking-[0.28em] text-slate-500">
+                  {isSealed ? "SEALED • QUANTUM LOCK" : "READY TO SEAL"}
+                </div>
+              </div>
+            </div>
+
+            {/* bottom timer badge */}
+            <div className="absolute left-1/2 bottom-[3.5%] -translate-x-1/2 rounded-full border border-white/15 bg-[#24313f]/92 px-4 py-2 text-[0.68rem] font-semibold tracking-wide text-cyan-100 shadow-[0_8px_18px_rgba(0,0,0,.28)]" style={{ transform: "translateX(-50%) translateZ(18px)" }}>
+              <span className="inline-flex items-center gap-1.5">
+                <Lock className="h-3.5 w-3.5 text-cyan-200" />
+                {formatTimeUntilTGE(TGE_DATE)}
+              </span>
             </div>
           </div>
 
-          <div className="absolute left-1/2 -translate-x-1/2 bottom-2 rounded-full border border-white/20 bg-[#081320]/80 px-3 py-1 text-[10px] text-cyan-100/90 flex items-center gap-1.5 shadow-[0_0_20px_rgba(34,211,238,.1)]">
-            <Lock className="h-3 w-3" />
-            {phase === 'sealed'
-              ? `Opens on ${new Date(tgeDate).toLocaleDateString()}`
-              : `TGE in ${c.days}d ${c.hours}h ${c.min}m`}
+          {/* Floating top lid / clamp assembly */}
+          <motion.div
+            className="absolute left-[47%] top-[2%] z-20 h-[28%] w-[55%]"
+            style={{ transformStyle: "preserve-3d", transformOrigin: "22% 82%" }}
+            initial={false}
+            animate={lidState}
+            transition={{ type: "spring", stiffness: 110, damping: 16 }}
+          >
+            <div className="absolute inset-0" style={{ transformStyle: "preserve-3d", transform: "rotateX(-6deg) rotateY(-6deg)" }}>
+              {/* underside depth */}
+              <div className="absolute inset-x-[4%] top-[26%] h-[62%] rounded-[22px] bg-[#0d1f33] shadow-[0_14px_30px_rgba(0,0,0,.45)]" style={{ transform: "translateZ(-10px) skewX(-16deg)" }} />
+              {/* lid frame */}
+              <div className="absolute inset-0 rounded-[24px] border border-cyan-50/45 bg-[linear-gradient(180deg,#f4fbff,#d7e7f3)] shadow-[inset_0_1px_0_rgba(255,255,255,.95),0_20px_40px_rgba(0,0,0,.32)]" style={{ clipPath: "polygon(4% 8%, 98% 8%, 90% 92%, 0% 92%)", transform: "translateZ(8px)" }}>
+                <div className="absolute inset-[3px] rounded-[22px] border border-cyan-100/60 bg-[linear-gradient(160deg,#0f3960,#0d2744_42%,#10375c)]" style={{ clipPath: "polygon(4% 8%, 98% 8%, 90% 92%, 0% 92%)" }}>
+                  <div className="absolute inset-0 opacity-70" style={{
+                    backgroundImage:
+                      "linear-gradient(110deg, rgba(255,255,255,.18), transparent 28%, rgba(112,208,255,.12) 52%, transparent 74%), radial-gradient(circle at 8% 92%, rgba(76,232,255,.35), transparent 24%)",
+                  }} />
+                  <div className="absolute left-[7%] top-[58%] h-[7%] w-[11%] rounded-full bg-cyan-300/95 blur-[.2px] shadow-[0_0_14px_rgba(88,235,255,.45)]" />
+                  <div className="absolute right-[4.5%] top-[14%] h-[4.6%] w-[3.2%] rounded-full bg-cyan-200/90 blur-[.2px] shadow-[0_0_12px_rgba(88,235,255,.45)]" />
+
+                  {/* status display strip */}
+                  <div className="absolute left-[16%] right-[16%] top-[50%] h-[23%] rounded-[12px] border border-cyan-200/20 bg-black/28">
+                    <div className="absolute inset-[1px] rounded-[10px] border border-white/5" />
+                    <div className="absolute left-[4%] top-[18%] text-[0.42rem] font-black tracking-[0.36em] text-cyan-100/70">STATUS DISPLAY</div>
+                    <div className="absolute left-[4%] bottom-[16%] text-[0.72rem] font-black tracking-[0.24em] text-cyan-50">
+                      {isSealed ? "CAPSULE SEALED" : "CAPSULE OPEN"}
+                    </div>
+                    <motion.div
+                      className="absolute top-[8%] bottom-[8%] w-[18%] rounded-[10px] bg-[linear-gradient(90deg,transparent,rgba(133,225,255,.25),transparent)]"
+                      animate={scanState}
+                      transition={{ duration: isSealed ? 3.4 : 2.2, repeat: Infinity, ease: "linear" }}
+                    />
+                  </div>
+
+                  <div className="absolute left-[7%] top-[14%] flex items-center gap-1 rounded-full border border-cyan-200/20 bg-white/10 px-2 py-1 text-[0.42rem] font-black tracking-[0.32em] text-cyan-100/70">
+                    <div className="h-2 w-3 rounded-[2px] border border-white/30 bg-white/20" />
+                    STATUS
+                  </div>
+                </div>
+              </div>
+
+              {/* front edge thickness */}
+              <div className="absolute left-[2%] right-[6%] top-[76%] h-[12%] rounded-full border border-cyan-100/25 bg-[linear-gradient(180deg,rgba(213,234,246,.95),rgba(159,181,198,.95))] shadow-[0_6px_16px_rgba(0,0,0,.22)]" style={{ transform: "translateZ(4px) skewX(-18deg)" }} />
+            </div>
+          </motion.div>
+
+          {/* Energy seals / lock beam */}
+          <div className="pointer-events-none absolute inset-0 z-10">
+            <motion.div
+              className="absolute left-[35%] right-[14%] top-[63%] h-[2px] bg-gradient-to-r from-transparent via-cyan-300/90 to-transparent blur-[.2px]"
+              animate={{ opacity: isSealed ? [0.4, 0.95, 0.4] : [0.2, 0.55, 0.2] }}
+              transition={{ duration: isSealed ? 1.4 : 2.4, repeat: Infinity, ease: "easeInOut" }}
+            />
+            {[0, 1, 2].map((i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-full border border-cyan-300/25"
+                style={{
+                  left: compact ? "28%" : "30%",
+                  right: compact ? "20%" : "18%",
+                  top: compact ? "50%" : "52%",
+                  height: compact ? 52 + i * 10 : 70 + i * 16,
+                }}
+                animate={{ opacity: isSealed ? [0.12, 0.3, 0.12] : [0.05, 0.18, 0.05], scale: [1, 1.02, 1] }}
+                transition={{ duration: 2.6 + i * 0.4, repeat: Infinity, ease: "easeInOut", delay: i * 0.2 }}
+              />
+            ))}
           </div>
         </div>
       </div>
-
-      {/* lid shadow */}
-      <motion.div
-        className="absolute left-1/2 top-[24%] -translate-x-1/2 rounded-[28px] bg-black/35 blur-xl"
-        style={{ width: lidW * 0.92, height: lidH * 0.42 }}
-        animate={phase === 'open' ? { opacity: 0.35, y: -8 } : { opacity: 0.15, y: 10 }}
-      />
-
-      {/* lid */}
-      <motion.div
-        className="absolute left-1/2 top-[12%] -translate-x-1/2 origin-bottom"
-        style={{ width: lidW, height: lidH, transformStyle: 'preserve-3d' }}
-        animate={lidState}
-        transition={phase === 'sealing' ? { duration: 1.2, ease: [0.22, 0.98, 0.2, 1] } : { duration: 0.35 }}
-      >
-        <div className="relative h-full w-full rounded-[28px] border border-white/20 bg-gradient-to-b from-[#f3fbff] via-[#d9e9f6] to-[#b8c9d7] p-[8px] shadow-[0_16px_36px_rgba(0,0,0,.35)]">
-          <div className="relative h-full w-full rounded-[22px] border border-cyan-300/25 bg-gradient-to-br from-[#07244a] via-[#04162f] to-[#020a18] overflow-hidden shadow-[inset_0_0_50px_rgba(34,211,238,.12)]">
-            <div className="absolute left-4 top-4 rotate-[-4deg] rounded-lg border border-white/15 bg-white/10 px-2 py-1 backdrop-blur">
-              <div className="flex items-center gap-1.5">
-                <img src={stickerSrc} alt="MB logo" className="h-4 w-4 rounded-sm bg-white/80 p-[2px] object-contain" />
-                <span className="text-[8px] font-semibold tracking-[.14em] text-cyan-50/90">STATUS</span>
-              </div>
-            </div>
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_12%,rgba(56,189,248,.22),transparent_38%),radial-gradient(circle_at_78%_70%,rgba(34,211,238,.15),transparent_52%)]" />
-            <motion.div
-              className="absolute left-3 right-3 top-3 h-[2px] rounded-full bg-cyan-300"
-              style={{ boxShadow: '0 0 12px rgba(34,211,238,.8)' }}
-              animate={phase === 'sealing' ? { opacity: [0.35, 1, 0.35] } : { opacity: 0.6 }}
-              transition={phase === 'sealing' ? { duration: 0.6, repeat: Infinity } : { duration: 0.2 }}
-            />
-            <motion.div
-              className="absolute top-2 h-[calc(100%-16px)] w-7 rounded-xl border border-cyan-300/20 bg-cyan-300/10"
-              style={{ left: compact ? '52%' : '60%' }}
-              animate={phase === 'sealing' ? { x: [0, compact ? -130 : -220, 0], opacity: [0.2, 0.9, 0.2] } : { opacity: 0.35 }}
-              transition={phase === 'sealing' ? { duration: 1.2, repeat: Infinity } : { duration: 0.2 }}
-            />
-            <div className="absolute left-4 bottom-4 h-2 w-9 rounded-full bg-cyan-300" style={{ boxShadow: '0 0 14px rgba(34,211,238,.75)' }} />
-            <div className="absolute right-4 top-4 h-2 w-2 rounded-full bg-cyan-300" style={{ boxShadow: '0 0 14px rgba(34,211,238,.75)' }} />
-
-            {/* display text on lid during sealing/sealed */}
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-3 w-[74%] rounded-xl border border-cyan-300/20 bg-[#07101e]/75 px-3 py-2 overflow-hidden">
-              <div className="text-[9px] uppercase tracking-[.18em] text-cyan-200/65">Status display</div>
-              <div className="mt-1 h-4 text-[10px] md:text-xs text-cyan-100 font-medium tracking-[.16em] whitespace-nowrap">
-                {phase === 'open' ? 'CAPSULE OPEN' : (typed || (phase === 'sealed' ? 'LOCKED UNTIL TGE' : '...'))}
-                {(phase === 'sealing' || phase === 'open') && <span className="ml-1 inline-block w-1.5 h-3 bg-cyan-200/85 align-middle animate-pulse" />}
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* electric arcs on seal */}
-      <AnimatePresence>
-        {phase === 'sealing' && (
-          <>
-            {[...Array(4)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: [0, 0.9, 0], scale: [0.8, 1.05, 0.9], rotate: [0, i % 2 ? 4 : -4, 0] }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.6, delay: i * 0.18, repeat: Infinity, repeatDelay: 0.3 }}
-                className="absolute left-1/2 -translate-x-1/2 top-[41%] h-[2px] bg-cyan-200"
-                style={{ width: compact ? 220 : 380, boxShadow: '0 0 14px rgba(34,211,238,.95)', clipPath: 'polygon(0 50%, 8% 35%, 16% 70%, 24% 32%, 34% 62%, 46% 28%, 58% 68%, 70% 36%, 82% 60%, 92% 40%, 100% 50%, 100% 70%, 0 70%)' }}
-              />
-            ))}
-          </>
-        )}
-      </AnimatePresence>
     </div>
-  )
+  );
 }
 
 function ShareImageCard({ name, avatarPreview, letter, sealedAt }) {
